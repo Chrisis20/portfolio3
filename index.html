@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev_Portfolio.exe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@300;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            --neon-purple: #a855f7;
+            --dark-purple: #581c87;
+            --bg-black: #050505;
+            --glass-border: rgba(168, 85, 247, 0.3);
+            --glass-bg: rgba(10, 10, 15, 0.6);
+        }
+
+        body {
+            background-color: var(--bg-black);
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            overflow: hidden; /* Strict one-screen rule */
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Custom Scrollbar for internal content if needed */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-purple);
+            border-radius: 2px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        /* Glassmorphism Card */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.15);
+        }
+
+        /* Glitch Effect Class */
+        .glitch-text {
+            position: relative;
+        }
+        .glitch-text::before, .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-black);
+        }
+        .glitch-text::before {
+            left: 2px;
+            text-shadow: -1px 0 red;
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+        .glitch-text::after {
+            left: -2px;
+            text-shadow: -1px 0 blue;
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(12px, 9999px, 32px, 0); }
+            20% { clip: rect(65px, 9999px, 80px, 0); }
+            40% { clip: rect(24px, 9999px, 5px, 0); }
+            60% { clip: rect(90px, 9999px, 2px, 0); }
+            80% { clip: rect(4px, 9999px, 55px, 0); }
+            100% { clip: rect(72px, 9999px, 30px, 0); }
+        }
+        @keyframes glitch-anim-2 {
+            0% { clip: rect(65px, 9999px, 100px, 0); }
+            20% { clip: rect(2px, 9999px, 40px, 0); }
+            40% { clip: rect(88px, 9999px, 12px, 0); }
+            60% { clip: rect(15px, 9999px, 66px, 0); }
+            80% { clip: rect(30px, 9999px, 5px, 0); }
+            100% { clip: rect(78px, 9999px, 95px, 0); }
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Navigation Hover */
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: rgba(168, 85, 247, 0.2);
+            border-left: 3px solid var(--neon-purple);
+            padding-left: 1rem;
+        }
+        .nav-item.active i {
+            color: var(--neon-purple);
+            text-shadow: 0 0 10px var(--neon-purple);
+        }
+
+        /* Scanline Effect overlay */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.1) 50%,
+                rgba(0,0,0,0.1)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.3;
+        }
+
+        /* Project Cards */
+        .project-card {
+            transition: transform 0.3s, border-color 0.3s;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--neon-purple);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        /* Terminal Blink */
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: var(--neon-purple);
+            animation: blink 1s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        
+        /* Tech Stack Chip Hover */
+        .tech-chip {
+            transition: all 0.2s ease;
+        }
+        .tech-chip:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px currentColor;
+        }
+    </style>
+</head>
+<body class="relative">
+
+    <!-- Background Canvas for Particles -->
+    <canvas id="particleCanvas" class="absolute top-0 left-0 w-full h-full z-0"></canvas>
+    
+    <!-- CRT Scanline Overlay -->
+    <div class="scanlines"></div>
+
+    <!-- Main Layout Grid -->
+    <main class="relative z-10 w-full h-full p-4 md:p-8 flex items-center justify-center">
+        
+        <div class="glass-panel w-full max-w-6xl h-[90vh] rounded-2xl flex overflow-hidden relative">
+            
+            <!-- Sidebar / Navigation -->
+            <aside class="w-20 md:w-64 border-r border-purple-500/20 flex flex-col justify-between bg-black/40">
+                <!-- Profile Header -->
+                <div class="p-6 hidden md:block">
+                    <div class="w-16 h-16 rounded-full border-2 border-purple-500 p-1 mb-4 relative group cursor-pointer">
+                        <img src="https://api.dicebear.com/9.x/dylan/svg?seed=Alex&backgroundColor=1a1a1a" alt="Avatar" class="rounded-full w-full h-full object-cover filter grayscale group-hover:grayscale-0 transition duration-500">
+                        <div class="absolute inset-0 rounded-full bg-purple-500/20 animate-pulse"></div>
+                    </div>
+                    <h2 class="text-lg font-bold text-white tracking-widest">ALEX.DEV</h2>
+                    <p class="text-xs text-purple-400 mt-1">Full Stack Creator</p>
+                    <div class="flex items-center gap-2 mt-2 text-[10px] text-gray-500">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-ping"></div>
+                        <span>ONLINE</span>
+                    </div>
+                </div>
+
+                <!-- Nav Links -->
+                <nav class="flex-1 flex flex-col justify-center gap-2 px-2 md:px-4">
+                    <button onclick="switchTab('home')" class="nav-item active flex items-center gap-4 p-3 rounded-lg text-gray-400 hover:text-white group">
+                        <i class="ph ph-house text-xl group-hover:scale-110 transition-transform"></i>
+                        <span class="hidden md:block text-sm font-bold tracking-wider">OVERVIEW</span>
+                    </button>
+                    <button onclick="switchTab('projects')" class="nav-item flex items-center gap-4 p-3 rounded-lg text-gray-400 hover:text-white group">
+                        <i class="ph ph-code text-xl group-hover:scale-110 transition-transform"></i>
+                        <span class="hidden md:block text-sm font-bold tracking-wider">PROJECTS</span>
+                    </button>
+                    <button onclick="switchTab('stack')" class="nav-item flex items-center gap-4 p-3 rounded-lg text-gray-400 hover:text-white group">
+                        <i class="ph ph-cpu text-xl group-hover:scale-110 transition-transform"></i>
+                        <span class="hidden md:block text-sm font-bold tracking-wider">TECH_STACK</span>
+                    </button>
+                    <button onclick="switchTab('contact')" class="nav-item flex items-center gap-4 p-3 rounded-lg text-gray-400 hover:text-white group">
+                        <i class="ph ph-paper-plane-tilt text-xl group-hover:scale-110 transition-transform"></i>
+                        <span class="hidden md:block text-sm font-bold tracking-wider">TRANSMIT</span>
+                    </button>
+                </nav>
+
+                <!-- Footer / Clock -->
+                <div class="p-4 border-t border-purple-500/20 text-center md:text-left">
+                    <p id="clock" class="text-xs font-mono text-purple-300">00:00:00</p>
+                    <p class="hidden md:block text-[10px] text-gray-600 mt-1">v2.0.24 System Ready</p>
+                </div>
+            </aside>
+
+            <!-- Content Area -->
+            <section class="flex-1 relative bg-black/20 overflow-hidden">
+                
+                <!-- Top Bar Decoration -->
+                <div class="absolute top-0 left-0 w-full h-12 border-b border-purple-500/20 flex items-center justify-between px-6 bg-black/20 z-20">
+                    <div class="text-[10px] md:text-xs text-gray-500 flex gap-4">
+                        <span>MEM: 64GB</span>
+                        <span>CPU: 12%</span>
+                        <span>NET: SECURE</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500/50"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500/50"></div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Content Container -->
+                <div id="content-display" class="w-full h-full pt-16 pb-36 px-6 md:px-12 overflow-y-auto">
+                    
+                    <!-- HOME TAB -->
+                    <div id="home" class="tab-content h-full flex flex-col justify-center">
+                        <p class="text-purple-400 font-mono text-sm mb-2">> Hello_World</p>
+                        <h1 class="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight leading-none">
+                            I BUILD <br>
+                            <span class="glitch-text text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-600" data-text="DIGITAL DREAMS">DIGITAL DREAMS</span>
+                        </h1>
+                        <p class="text-gray-400 max-w-lg text-sm md:text-base leading-relaxed mb-8 font-sans">
+                            Creative Developer & UI Designer focused on crafting immersive web experiences. 
+                            Obsessed with performance, aesthetics, and clean code.
+                        </p>
+                        <div class="flex gap-4">
+                            <button onclick="switchTab('projects')" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded border border-purple-400 font-mono text-xs uppercase tracking-widest transition-all hover:shadow-[0_0_20px_rgba(168,85,247,0.5)]">
+                                View_Work
+                            </button>
+                            <button onclick="window.open('https://github.com', '_blank')" class="border border-gray-600 hover:border-white text-gray-300 hover:text-white px-6 py-3 rounded font-mono text-xs uppercase tracking-widest transition-all">
+                                Github
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PROJECTS TAB -->
+                    <div id="projects" class="tab-content hidden h-full">
+                        <h2 class="text-3xl font-bold mb-6 flex items-center gap-2"><i class="ph ph-folder-open text-purple-500"></i> Selected Works</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Card 1 -->
+                            <div class="project-card border border-gray-700 bg-black/40 p-4 rounded-lg group cursor-pointer relative overflow-hidden">
+                                <div class="absolute top-0 right-0 bg-purple-600 text-[10px] px-2 py-1 rounded-bl font-mono">REACT</div>
+                                <h3 class="text-xl font-bold text-white group-hover:text-purple-400">Neon Finance</h3>
+                                <p class="text-gray-500 text-xs mt-2 mb-4">Real-time crypto dashboard with WebGL visualization.</p>
+                                <div class="flex gap-2 mt-auto">
+                                    <span class="px-2 py-1 bg-gray-800 rounded text-[10px] text-gray-300">D3.js</span>
+                                    <span class="px-2 py-1 bg-gray-800 rounded text-[10px] text-gray-300">Tailwind</span>
+                                </div>
+                            </div>
+                            <!-- Card 2 -->
+                            <div class="project-card border border-gray-700 bg-black/40 p-4 rounded-lg group cursor-pointer relative overflow-hidden">
+                                <div class="absolute top-0 right-0 bg-blue-600 text-[10px] px-2 py-1 rounded-bl font-mono">AI/LLM</div>
+                                <h3 class="text-xl font-bold text-white group-hover:text-purple-400">Sentient Chat</h3>
+                                <p class="text-gray-500 text-xs mt-2 mb-4">Local LLM interface with custom memory retrieval.</p>
+                                <div class="flex gap-2 mt-auto">
+                                    <span class="px-2 py-1 bg-gray-800 rounded text-[10px] text-gray-300">Python</span>
+                                    <span class="px-2 py-1 bg-gray-800 rounded text-[10px] text-gray-300">WebSockets</span>
+                                </div>
+                            </div>
+                            <!-- Card 3 -->
+                            <div class="project-card border border-gray-700 bg-black/40 p-4 rounded-lg group cursor-pointer relative overflow-hidden">
+                                <div class="absolute top-0 right-0 bg-green-600 text-[10px] px-2 py-1 rounded-bl font-mono">MOBILE</div>
+                                <h3 class="text-xl font-bold text-white group-hover:text-purple-400">Zen Task</h3>
+                                <p class="text-gray-500 text-xs mt-2 mb-4">Minimalist productivity app with gesture controls.</p>
+                                <div class="flex gap-2 mt-auto">
+                                    <span class="px-2 py-1 bg-gray-800 rounded text-[10px] text-gray-300">React Native</span>
+                                </div>
+                            </div>
+                             <!-- Card 4 -->
+                             <div class="project-card border border-gray-700 bg-black/40 p-4 rounded-lg group cursor-pointer relative overflow-hidden">
+                                <div class="absolute top-0 right-0 bg-yellow-600 text-[10px] px-2 py-1 rounded-bl font-mono">WEBGL</div>
+                                <h3 class="text-xl font-bold text-white group-hover:text-purple-400">Astro Physics</h3>
+                                <p class="text-gray-500 text-xs mt-2 mb-4">Browser based gravity simulation engine.</p>
+                                <div class="flex gap-2 mt-auto">
+                                    <span class="px-2 py-1 bg-gray-800 rounded text-[10px] text-gray-300">Three.js</span>
+                                    <span class="px-2 py-1 bg-gray-800 rounded text-[10px] text-gray-300">GLSL</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STACK TAB (UPDATED) -->
+                    <div id="stack" class="tab-content hidden h-full">
+                        <h2 class="text-3xl font-bold mb-6 flex items-center gap-2">
+                            <i class="ph ph-cpu text-purple-500"></i> System Core
+                        </h2>
+                        
+                        <p class="text-sm text-gray-400 mb-6">/// INITIALIZING INSTALLED MODULES...</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Category: Frontend -->
+                            <div class="border border-purple-500/30 bg-purple-900/10 p-5 rounded-xl relative overflow-hidden group hover:border-purple-500/60 transition-all">
+                                <div class="absolute top-0 right-0 p-2 opacity-20 group-hover:opacity-40 transition-opacity">
+                                    <i class="ph ph-browsers text-6xl text-purple-500"></i>
+                                </div>
+                                <h3 class="text-lg font-mono text-purple-300 mb-4 flex items-center gap-2">
+                                    <span class="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span> FRONTEND_LNK
+                                </h3>
+                                <div class="flex flex-wrap gap-2 relative z-10">
+                                    <span class="tech-chip px-3 py-1.5 border border-purple-500/40 bg-purple-500/10 rounded text-xs font-mono hover:bg-purple-500 hover:text-white cursor-default text-purple-200">React.js</span>
+                                    <span class="tech-chip px-3 py-1.5 border border-purple-500/40 bg-purple-500/10 rounded text-xs font-mono hover:bg-purple-500 hover:text-white cursor-default text-purple-200">TypeScript</span>
+                                    <span class="tech-chip px-3 py-1.5 border border-purple-500/40 bg-purple-500/10 rounded text-xs font-mono hover:bg-purple-500 hover:text-white cursor-default text-purple-200">Tailwind</span>
+                                    <span class="tech-chip px-3 py-1.5 border border-purple-500/40 bg-purple-500/10 rounded text-xs font-mono hover:bg-purple-500 hover:text-white cursor-default text-purple-200">Three.js</span>
+                                    <span class="tech-chip px-3 py-1.5 border border-purple-500/40 bg-purple-500/10 rounded text-xs font-mono hover:bg-purple-500 hover:text-white cursor-default text-purple-200">Next.js</span>
+                                </div>
+                            </div>
+
+                            <!-- Category: Backend -->
+                            <div class="border border-blue-500/30 bg-blue-900/10 p-5 rounded-xl relative overflow-hidden group hover:border-blue-500/60 transition-all">
+                                 <div class="absolute top-0 right-0 p-2 opacity-20 group-hover:opacity-40 transition-opacity">
+                                    <i class="ph ph-database text-6xl text-blue-500"></i>
+                                </div>
+                                <h3 class="text-lg font-mono text-blue-300 mb-4 flex items-center gap-2">
+                                    <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span> SERVER_NODE
+                                </h3>
+                                <div class="flex flex-wrap gap-2 relative z-10">
+                                    <span class="tech-chip px-3 py-1.5 border border-blue-500/40 bg-blue-500/10 rounded text-xs font-mono hover:bg-blue-500 hover:text-white cursor-default text-blue-200">Node.js</span>
+                                    <span class="tech-chip px-3 py-1.5 border border-blue-500/40 bg-blue-500/10 rounded text-xs font-mono hover:bg-blue-500 hover:text-white cursor-default text-blue-200">Python</span>
+                                    <span class="tech-chip px-3 py-1.5 border border-blue-500/40 bg-blue-500/10 rounded text-xs font-mono hover:bg-blue-500 hover:text-white cursor-default text-blue-200">PostgreSQL</span>
+                                    <span class="tech-chip px-3 py-1.5 border border-blue-500/40 bg-blue-500/10 rounded text-xs font-mono hover:bg-blue-500 hover:text-white cursor-default text-blue-200">GraphQL</span>
+                                </div>
+                            </div>
+
+                            <!-- Category: Tools -->
+                             <div class="border border-green-500/30 bg-green-900/10 p-5 rounded-xl relative overflow-hidden group hover:border-green-500/60 transition-all md:col-span-2">
+                                 <div class="absolute top-0 right-0 p-2 opacity-20 group-hover:opacity-40 transition-opacity">
+                                    <i class="ph ph-wrench text-6xl text-green-500"></i>
+                                </div>
+                                <h3 class="text-lg font-mono text-green-300 mb-4 flex items-center gap-2">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> SYS_TOOLS
+                                </h3>
+                                <div class="flex flex-wrap gap-2 relative z-10">
+                                    <span class="tech-chip px-3 py-1.5 border border-green-500/40 bg-green-500/10 rounded text-xs font-mono hover:bg-green-500 hover:text-white cursor-default text-green-200">Docker</span>
+                                    <span class="tech-chip px-3 py-1.5 border border-green-500/40 bg-green-500/10 rounded text-xs font-mono hover:bg-green-500 hover:text-white cursor-default text-green-200">Git</span>
+                                    <span class="tech-chip px-3 py-1.5 border border-green-500/40 bg-green-500/10 rounded text-xs font-mono hover:bg-green-500 hover:text-white cursor-default text-green-200">Figma</span>
+                                    <span class="tech-chip px-3 py-1.5 border border-green-500/40 bg-green-500/10 rounded text-xs font-mono hover:bg-green-500 hover:text-white cursor-default text-green-200">Linux</span>
+                                    <span class="tech-chip px-3 py-1.5 border border-green-500/40 bg-green-500/10 rounded text-xs font-mono hover:bg-green-500 hover:text-white cursor-default text-green-200">AWS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CONTACT TAB -->
+                    <div id="contact" class="tab-content hidden h-full flex flex-col justify-center items-center text-center">
+                        <div class="w-20 h-20 bg-purple-900/30 rounded-full flex items-center justify-center mb-6 border border-purple-500/50 shadow-[0_0_30px_rgba(168,85,247,0.3)]">
+                            <i class="ph ph-envelope-open text-3xl text-white"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-white mb-2">Initialize Connection</h2>
+                        <p class="text-gray-400 text-sm mb-8 max-w-md">
+                            Available for freelance projects and collaborations. Sending a signal is free.
+                        </p>
+                        
+                        <div class="flex flex-col md:flex-row gap-4 w-full max-w-md">
+                            <button onclick="copyEmail()" class="flex-1 bg-white/5 hover:bg-white/10 border border-gray-600 text-white p-4 rounded flex items-center justify-center gap-2 transition-all active:scale-95">
+                                <i class="ph ph-copy"></i>
+                                <span id="email-text">hello@alex.dev</span>
+                            </button>
+                            <a href="#" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white p-4 rounded flex items-center justify-center gap-2 transition-all shadow-lg shadow-purple-900/50">
+                                <i class="ph ph-paper-plane-right"></i>
+                                <span>Send Now</span>
+                            </a>
+                        </div>
+
+                        <div class="mt-8 flex gap-6 text-gray-500">
+                            <a href="#" class="hover:text-white transition-colors"><i class="ph ph-twitter-logo text-2xl"></i></a>
+                            <a href="#" class="hover:text-white transition-colors"><i class="ph ph-linkedin-logo text-2xl"></i></a>
+                            <a href="#" class="hover:text-white transition-colors"><i class="ph ph-instagram-logo text-2xl"></i></a>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Terminal Footer (Interactive) -->
+                <div class="absolute bottom-0 left-0 w-full h-24 md:h-32 bg-black/80 backdrop-blur-md border-t border-purple-500/30 p-4 font-mono text-xs md:text-sm z-30" onclick="document.getElementById('cmd-input').focus()">
+                    <div id="terminal-history" class="h-full overflow-hidden text-green-400/80 flex flex-col justify-end pb-6">
+                        <div class="opacity-50">System initialized... welcome user.</div>
+                        <div class="opacity-50">Type 'help' for available commands.</div>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-purple-500">root@portfolio:~$</span>
+                            <input type="text" id="cmd-input" class="bg-transparent border-none outline-none text-white w-full uppercase" autocomplete="off" spellcheck="false">
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // --- Navigation Logic ---
+        function switchTab(tabId) {
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active');
+                el.classList.remove('border-l-4');
+                el.classList.remove('border-purple-500');
+            });
+            
+            // Find button that called this (approximated via onclick match or manually)
+            const buttons = document.querySelectorAll('button[onclick*="' + tabId + '"]');
+            buttons.forEach(btn => btn.classList.add('active'));
+
+            // Hide all content
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('fade-in');
+            });
+
+            // Show selected
+            const selected = document.getElementById(tabId);
+            selected.classList.remove('hidden');
+            selected.classList.add('fade-in');
+        }
+
+        // --- Clock Logic ---
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', { hour12: false });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // --- Interactive Terminal Logic ---
+        const cmdInput = document.getElementById('cmd-input');
+        const history = document.getElementById('terminal-history');
+
+        cmdInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                const command = this.value.toLowerCase().trim();
+                
+                // Add Line
+                const line = document.createElement('div');
+                line.innerHTML = `<span class="text-purple-500">root@portfolio:~$</span> ${this.value}`;
+                history.insertBefore(line, history.lastElementChild);
+                
+                // Process Response
+                const response = document.createElement('div');
+                response.className = "text-blue-300 mb-1";
+                
+                switch(command) {
+                    case 'help':
+                        response.innerText = "COMMANDS: [home] [projects] [stack] [contact] [clear] [whoami]";
+                        break;
+                    case 'home':
+                        switchTab('home');
+                        response.innerText = "Navigating to Home...";
+                        break;
+                    case 'projects':
+                    case 'work':
+                        switchTab('projects');
+                        response.innerText = "Loading Projects Module...";
+                        break;
+                    case 'contact':
+                        switchTab('contact');
+                        response.innerText = "Opening Comm Channels...";
+                        break;
+                    case 'stack':
+                        switchTab('stack');
+                        response.innerText = "Analyzing System Tech...";
+                        break;
+                    case 'clear':
+                        history.innerHTML = '<div class="flex items-center gap-2 mt-1"><span class="text-purple-500">root@portfolio:~$</span><input type="text" id="cmd-input" class="bg-transparent border-none outline-none text-white w-full uppercase" autocomplete="off" spellcheck="false"></div>';
+                        // Re-attach listener since we wiped the input
+                        setTimeout(() => {
+                            document.getElementById('cmd-input').addEventListener('keypress', arguments.callee);
+                            document.getElementById('cmd-input').focus();
+                        }, 10);
+                        return; 
+                    case 'whoami':
+                        response.innerText = "Alex // Creative Developer // Night Owl";
+                        break;
+                    default:
+                        response.className = "text-red-400 mb-1";
+                        response.innerText = `Command not found: ${command}`;
+                }
+                
+                if(command !== 'clear') {
+                    history.insertBefore(response, history.lastElementChild);
+                }
+                
+                this.value = '';
+                // Keep only last 6 lines to prevent overflow layout issues
+                while(history.children.length > 8) {
+                    history.removeChild(history.firstElementChild);
+                }
+            }
+        });
+
+        // --- Particle Background Logic ---
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.color = `rgba(168, 85, 247, ${Math.random() * 0.5})`; // Purple tint
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            for (let i = 0; i < 100; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        // Mouse Interaction
+        let mouse = { x: null, y: null };
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                // Draw connections if close to mouse
+                const dx = particles[i].x - mouse.x;
+                const dy = particles[i].y - mouse.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < 150) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(168, 85, 247, ${1 - distance/150})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.stroke();
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        initParticles();
+        animateParticles();
+
+        // --- Clipboard Copy ---
+        function copyEmail() {
+            const text = "hello@alex.dev";
+            navigator.clipboard.writeText(text).then(() => {
+                const el = document.getElementById('email-text');
+                const original = el.innerText;
+                el.innerText = "COPIED!";
+                setTimeout(() => el.innerText = original, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
