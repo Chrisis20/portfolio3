@@ -48,47 +48,29 @@
             box-shadow: 0 0 30px rgba(168, 85, 247, 0.15);
         }
 
-        /* Glitch Effect Class */
-        .glitch-text {
-            position: relative;
-        }
-        .glitch-text::before, .glitch-text::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-black);
-        }
-        .glitch-text::before {
-            left: 2px;
-            text-shadow: -1px 0 red;
-            clip: rect(24px, 550px, 90px, 0);
-            animation: glitch-anim-2 3s infinite linear alternate-reverse;
-        }
-        .glitch-text::after {
-            left: -2px;
-            text-shadow: -1px 0 blue;
-            clip: rect(85px, 550px, 140px, 0);
-            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        /* New Aesthetic Liquid Flow Animation */
+        .neon-flow-text {
+            background: linear-gradient(
+                90deg,
+                #a855f7 0%,
+                #f3e8ff 25%, 
+                #a855f7 50%, 
+                #f3e8ff 75%,
+                #a855f7 100%
+            );
+            background-size: 200% auto;
+            color: #fff;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: flow-shine 3s linear infinite;
+            filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.6));
         }
 
-        @keyframes glitch-anim {
-            0% { clip: rect(12px, 9999px, 32px, 0); }
-            20% { clip: rect(65px, 9999px, 80px, 0); }
-            40% { clip: rect(24px, 9999px, 5px, 0); }
-            60% { clip: rect(90px, 9999px, 2px, 0); }
-            80% { clip: rect(4px, 9999px, 55px, 0); }
-            100% { clip: rect(72px, 9999px, 30px, 0); }
-        }
-        @keyframes glitch-anim-2 {
-            0% { clip: rect(65px, 9999px, 100px, 0); }
-            20% { clip: rect(2px, 9999px, 40px, 0); }
-            40% { clip: rect(88px, 9999px, 12px, 0); }
-            60% { clip: rect(15px, 9999px, 66px, 0); }
-            80% { clip: rect(30px, 9999px, 5px, 0); }
-            100% { clip: rect(78px, 9999px, 95px, 0); }
+        @keyframes flow-shine {
+            to {
+                background-position: 200% center;
+            }
         }
 
         /* Animations */
@@ -246,7 +228,7 @@
                         <p class="text-purple-400 font-mono text-sm mb-2">> Hello_World</p>
                         <h1 class="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight leading-none">
                             I BUILD <br>
-                            <span class="glitch-text text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-600" data-text="DIGITAL DREAMS">DIGITAL DREAMS</span>
+                            <span class="neon-flow-text">DIGITAL DREAMS</span>
                         </h1>
                         <p class="text-gray-400 max-w-lg text-sm md:text-base leading-relaxed mb-8 font-sans">
                             Creative Developer & UI Designer focused on crafting immersive web experiences. 
